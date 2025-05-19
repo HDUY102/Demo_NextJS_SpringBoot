@@ -1,6 +1,7 @@
 import useSWR from 'swr';
 import { fetcher } from '@/lib/fetcher';
 
+// Các trường: id, name,... phải trùng tên với field trong DB thì mới show ra d.lieu
 export interface Category {
   id: number;
   name: string;
