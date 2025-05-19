@@ -7,13 +7,6 @@ type SidebarMenuItem = {
   children?: [] | any[];
 };
 
-type HeaderMenuItem = {
-  title: string;
-  icon: React.ElementType;
-  href?: string;
-  children?: [] | any[];
-};
-
 export const menuItems: SidebarMenuItem[] = [
   {
     title: "Flower Garden",
