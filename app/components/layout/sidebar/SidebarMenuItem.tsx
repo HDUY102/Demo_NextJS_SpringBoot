@@ -9,9 +9,9 @@ interface MenuItemProps{
 
 const SidebarMenuItem = ({title, icon: Icon, href}:MenuItemProps) => {
   return (
-    <Link href={href} className='flex p-2 hover:bg-amber-500'>
+    <Link href={href} className='flex p-2 hover:bg-gray-600'>
         <Icon size={20}/>
-        <div className='ml-3'>{title}</div>
+        <div className='ml-3 hidden'>{title}</div>
     </Link>
   )
 }
