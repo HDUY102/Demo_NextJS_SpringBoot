@@ -1,17 +1,35 @@
-import React from 'react'
+'use client'
+import React, {useState} from 'react'
 import Link from 'next/link';
+import { PanelRightClose, PanelRightOpen } from 'lucide-react'
 
 interface MenuItemProps{
     title: string;
     icon: React.ElementType;
     href: string;
+    isFirst?: boolean
+    isOpenSidebar?: boolean
+    toggleSidebar: ()=>void
 }
 
-const SidebarMenuItem = ({title, icon: Icon, href}:MenuItemProps) => {
+const SidebarMenuItem = ({title, icon: Icon, href, isFirst=false, isOpenSidebar, toggleSidebar}:MenuItemProps) => {
+  
   return (
-    <Link href={href} className='flex p-2 hover:bg-gray-600'>
-        <Icon size={20}/>
-        <div className='ml-3 hidden'>{title}</div>
+    <Link href={href} className={`flex justify-between items-center p-2 ${isFirst ? '' : 'md:hover:not-only:bg-gray-500'}`}>
+      <div className="flex items-center">
+        <Icon size={20} />
+        {isOpenSidebar ? (<div className='ml-2'>{title}</div>) : ''}
+      </div>
+
+      {isFirst && (
+        <div onClick={(e)=>{e.preventDefault(); if (toggleSidebar) toggleSidebar();}} className="text-white ml-2.5">
+          {isOpenSidebar?(
+            <PanelRightOpen size={20} />
+          ):(
+            <PanelRightClose size={20} />
+          )}
+        </div>
+      )}
     </Link>
   )
 }
