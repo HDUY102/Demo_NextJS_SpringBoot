@@ -15,7 +15,7 @@ const DashboardChildrent = ({children}:{children: React.ReactNode}) => {
         <div className='row-start-1 col-start-2 bg-red-500 md:row-start-1 md:col-start-2 md:col-span-2'>
             <TopHeader/>
         </div>
-        <div className='row-start-1 col-start-1 row-span-3 md:row-start-1 md:col-start-1 md:row-span-3 bg-slate-800 text-white'>
+        <div className={`row-span-3 md:row-start-1 md:col-start-1 md:row-span-3 bg-slate-800 text-white ${isOpenSidebar? 'absolute md:static h-full' : 'md:block'}`}>
             <Sidebar isOpenSidebar={isOpenSidebar} toggleSidebar={toggleSidebar}/>
         </div>
         <div className='row-start-2 col-start-2 md:row-start-2 md:col-start-2 text-black'>{children}</div>
