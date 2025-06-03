@@ -15,10 +15,10 @@ interface MenuItemProps{
 const SidebarMenuItem = ({title, icon: Icon, href, isFirst=false, isOpenSidebar, toggleSidebar}:MenuItemProps) => {
   
   return (
-    <Link href={href} className={`flex justify-between items-center p-2 ${isFirst ? '' : 'md:hover:not-only:bg-gray-500'}`}>
+    <Link href={href} className={`flex justify-between items-center p-2 ${isFirst ? '' : 'md:hover:text-black md:hover:bg-gray-500 md:hover:rounded-3xl'}`}>
       <div className="flex items-center">
         <Icon size={20} />
-        {isOpenSidebar ? (<div className='ml-2'>{title}</div>) : ''}
+        {isOpenSidebar ? (<div className='ml-2 md::bg-amber-300'>{title}</div>) : ''}
       </div>
 
       {isFirst && (

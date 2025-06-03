@@ -30,11 +30,7 @@ export const menuItems: SidebarMenuItem[] = [
   {
     title: "Thống kê",
     icon: ChartNoAxesCombined,
-    // children: [
-    //   { title: "Theo ngày", icon: ChartNoAxesCombined , href: "/dashboard/loainha" },
-    //   { title: "Theo tháng", icon: ChartNoAxesCombined , href: "/dashboard/nha" },
-    // ],
-    href: "/statistical",
+    href: "/dashboard/statistical",
   },
   {
     title: "Đơn hàng",
