@@ -8,7 +8,6 @@ import Footer from '../components/Footer'
 const DashboardChildrent = ({children}:{children: React.ReactNode}) => {
     const [isOpenSidebar, setIsOpenSidebar] = useState(false);
     const toggleSidebar = () => setIsOpenSidebar(!isOpenSidebar)
-    console.log(isOpenSidebar)
     return (
     <div className={`grid grid-cols-[100px_1fr] grid-rows-[70px_1fr_100px] h-screen md:grid-cols-[100px_1fr_100px]
         md:grid-rows-[80px_1fr_150px] text-white ${isOpenSidebar ? 'md:grid-cols-[auto_1fr_100px]' : 'md:grid-cols-[100px_1fr_100px]'}`}>
