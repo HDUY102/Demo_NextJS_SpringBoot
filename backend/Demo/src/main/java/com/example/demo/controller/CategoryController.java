@@ -4,7 +4,6 @@ import com.example.demo.respository.CategoryRepository;
 import com.example.dtos.CategoryDTO;
 import com.example.services.CategoryService;
 
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.beans.factory.annotation.Autowired;

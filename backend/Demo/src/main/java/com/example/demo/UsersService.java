@@ -13,11 +13,11 @@ public class UsersService {
 	@Autowired
     private UserRespo userRespository;
 
-    public List<Users> getAllFlowers() {
+    public List<Orders> getAllFlowers() {
         return userRespository.findAll();
     }
 
-    public Users addFlower(Users user) {
+    public Orders addFlower(Orders user) {
         return userRespository.save(user);
     }
 }

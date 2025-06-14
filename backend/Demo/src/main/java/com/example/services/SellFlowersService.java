@@ -6,5 +6,4 @@ import com.example.dtos.SellFlowersDTO;
 
 public interface SellFlowersService {
 	List<SellFlowersDTO> findAllSellFlowers();
-	
 }

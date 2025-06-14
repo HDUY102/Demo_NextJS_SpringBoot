@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class SellFlowersDTO {
-	private Long idFlower;
+//	private Long idFlower;
 	@NotBlank(message="Name is mandatory")
 	@Size(min=2, max=50, message="Name must be between 2 and 50 characters")
 	private String nameFlowers;
