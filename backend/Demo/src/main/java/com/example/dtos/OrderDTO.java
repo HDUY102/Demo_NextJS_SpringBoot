@@ -1,14 +1,10 @@
 package com.example.dtos;
 
 import java.math.BigDecimal;
-import java.util.Date;
+import java.util.*;
 import com.example.demo.generics.BaseDTO;
 import com.fasterxml.jackson.annotation.JsonFormat;
-
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 @Data
@@ -21,6 +17,9 @@ public class OrderDTO extends BaseDTO{
 	private Date dateOrder;
 	private Boolean isPaid;
 	private BigDecimal totalAmount;
+	private String orderHistoryJson;
 	private Long customerId;
+	private String customerName;
     private Long currentStatusId;
+    private List<DetailOrderDTO> details;
 }

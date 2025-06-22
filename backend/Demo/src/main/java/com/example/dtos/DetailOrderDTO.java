@@ -21,6 +21,7 @@ public class DetailOrderDTO{
     private Date orderDate;
     
     private String customerName;
+    private String orderStatusId;
     private String orderStatusName;
     private String flowerTypeName;
     private String saleUnitName;

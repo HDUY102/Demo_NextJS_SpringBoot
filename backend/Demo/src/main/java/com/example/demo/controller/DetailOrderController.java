@@ -1,14 +1,11 @@
 package com.example.demo.controller;
 
 import java.util.List;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import com.example.dtos.DetailOrderDTO;
 import com.example.services.DetailOrderService;
-
-import jakarta.validation.Valid;
+//import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -38,27 +35,27 @@ public class DetailOrderController {
         return ResponseEntity.ok(details);
     }
     
-    @PostMapping
-    public ResponseEntity<DetailOrderDTO> createDetailOrder(@RequestBody @Valid DetailOrderDTO detailOrderDTO) {
-        return ResponseEntity.ok(detailOrderService.save(detailOrderDTO));
-    }
-    
-    @PutMapping("/{orderId}/{flowerTypeId}/{saleUnitId}")
-    public ResponseEntity<DetailOrderDTO> updateDetailOrder(
-            @PathVariable Long orderId,
-            @PathVariable Long flowerTypeId,
-            @PathVariable Long saleUnitId,
-            @RequestBody DetailOrderDTO detailOrderDTO) {
-        DetailOrderDTO updatedDetailOrder = detailOrderService.update(orderId, flowerTypeId, saleUnitId, detailOrderDTO);
-        return ResponseEntity.ok(updatedDetailOrder);
-    }
-    
-    @DeleteMapping("/{orderId}/{flowerTypeId}/{saleUnitId}")
-    public ResponseEntity<Void> deleteDetailOrder(
-            @PathVariable Long orderId,
-            @PathVariable Long flowerTypeId,
-            @PathVariable Long saleUnitId) {
-        detailOrderService.delete(orderId, flowerTypeId, saleUnitId);
-        return ResponseEntity.noContent().build();
-    }    
+//    @PostMapping
+//    public ResponseEntity<DetailOrderDTO> createDetailOrder(@RequestBody @Valid DetailOrderDTO detailOrderDTO) {
+//        return ResponseEntity.ok(detailOrderService.save(detailOrderDTO));
+//    }
+//    
+//    @PutMapping("/{orderId}/{flowerTypeId}/{saleUnitId}")
+//    public ResponseEntity<DetailOrderDTO> updateDetailOrder(
+//            @PathVariable Long orderId,
+//            @PathVariable Long flowerTypeId,
+//            @PathVariable Long saleUnitId,
+//            @RequestBody DetailOrderDTO detailOrderDTO) {
+//        DetailOrderDTO updatedDetailOrder = detailOrderService.update(orderId, flowerTypeId, saleUnitId, detailOrderDTO);
+//        return ResponseEntity.ok(updatedDetailOrder);
+//    }
+//    
+//    @DeleteMapping("/{orderId}/{flowerTypeId}/{saleUnitId}")
+//    public ResponseEntity<Void> deleteDetailOrder(
+//            @PathVariable Long orderId,
+//            @PathVariable Long flowerTypeId,
+//            @PathVariable Long saleUnitId) {
+//        detailOrderService.delete(orderId, flowerTypeId, saleUnitId);
+//        return ResponseEntity.noContent().build();
+//    }    
 }

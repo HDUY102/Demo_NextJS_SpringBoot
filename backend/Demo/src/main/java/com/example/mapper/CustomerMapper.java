@@ -18,7 +18,7 @@ public interface CustomerMapper extends BaseMapper<Customers, CustomerDTO, Custo
 	Customers toEntity(CustomerDTO customerDTO);
 
     @Override
-    @Mapping(source = "name", target = "nameCustomer")
+    @Mapping(target = "nameCustomer", source = "name" )
     @Mapping(target = "address", source = "address")
     @Mapping(target = "phoneNumber", source = "phoneNumber")
     @Mapping(target = "id", ignore = true)

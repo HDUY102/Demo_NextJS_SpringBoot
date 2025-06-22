@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
 
 public abstract class BaseController<ReqDTO extends BaseDTO, ResDTO extends BaseDTO> {
-
     protected abstract BaseService<?, ReqDTO, ResDTO> getService();
 
     @GetMapping
