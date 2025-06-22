@@ -1,4 +1,6 @@
-import {Contact,Archive,ArchiveX,LayoutDashboard,LayoutList,ChartNoAxesCombined,Flower} from "lucide-react";
+import {Contact,LayoutDashboard,LayoutList,ChartNoAxesCombined,Flower, Newspaper} from "lucide-react";
+import { FaBoxesStacked  } from "react-icons/fa6";
+import { RiCustomerService2Fill } from "react-icons/ri";
 
 type SidebarMenuItem = {
   title: string;
@@ -34,10 +36,17 @@ export const menuItems: SidebarMenuItem[] = [
   },
   {
     title: "Đơn hàng",
-    icon: ChartNoAxesCombined,
-    children: [
-      { title: "Đã giao", icon: Archive , href: "/dashboard/orderdone" },
-      { title: "Chưa giao", icon: ArchiveX , href: "/dashboard/order" },
-    ],
-  }
+    icon: FaBoxesStacked,
+    href: "/dashboard/order",
+    // children: [
+    //   { title: "Đơn hàng mới", icon: Newspaper , href: "/dashboard/order/new" },
+    //   { title: "Đang xử lý", icon: MdPendingActions , href: "/dashboard/orderdone" },
+    //   { title: "Chưa giao", icon: ArchiveX , href: "/dashboard/order" },
+    // ],
+  },
+  {
+    title: "Chăm sóc khác hàng",
+    icon: RiCustomerService2Fill,
+    href: "/dashboard/takecare",
+  },
 ]

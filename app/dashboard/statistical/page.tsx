@@ -80,6 +80,17 @@ import {AreaChart, Area, XAxis, YAxis,  CartesianGrid,  Tooltip,  Legend,  Respo
 
 export default function StatisticalPage() {
   const {sellFlowers, isLoading, isError} = useSellFlowers();
+  
+  // get name of all flowers
+  const flowerTypes = useMemo(()=>{
+    const getFlowers =  new Set<string>()
+    sellFlowers?.forEach(({nameFlowers})=>{
+      if(nameFlowers){
+        getFlowers.add(nameFlowers.toLowerCase())
+      }
+    })
+    return Array.from(getFlowers)
+  },[sellFlowers])
 
   const chartData = useMemo(()=>{
     if (!sellFlowers || !Array.isArray(sellFlowers)) return []
@@ -88,23 +99,22 @@ export default function StatisticalPage() {
       if (!month || isNaN(Number(month)) || !nameFlowers || incomeInMonth === undefined) return
 
       if(!monthMap[month]){
-        monthMap[month] = {
-          month: `Tháng ${month}`,
-          hoahong: 0,
-          hoaly: 0,
-          hoagiay: 0
-        }
+        monthMap[month] = { month: `Tháng ${month}`}
+
+        flowerTypes.forEach(flower => {
+          monthMap[month][flower] = 0;
+        })
       }
 
       const key = nameFlowers.toLowerCase()
-      if(['hoahong','hoaly','hoagiay'].includes(key)){
-        monthMap[month][key] = incomeInMonth
+      if(flowerTypes.includes(key)){
+        monthMap[month][key] += incomeInMonth
       }
     })
 
     return Object.values(monthMap)
-  },[sellFlowers])
-
+  },[sellFlowers,flowerTypes])
+  console.log('d ', sellFlowers)
   if (isLoading) return <p>Đang tải dữ liệu...</p>
   if (isError) return <p>Lỗi khi tải dữ liệu</p>
 
@@ -119,12 +129,26 @@ export default function StatisticalPage() {
             <YAxis />
             <Tooltip />
             <Legend />
-            <Area type="monotone" dataKey="hoahong" stackId="1" stroke="#8884d8" fill="#8884d8" />
+            {flowerTypes.map((type,index)=>(
+              <Area key={type} type="monotone" dataKey={type} stackId="1" stroke={getColor(index)} fill={getColor(index,0.4)} />
+            ))}
+            {/* <Area type="monotone" dataKey="hoahong" stackId="1" stroke="#8884d8" fill="#8884d8" />
             <Area type="monotone" dataKey="hoaly" stackId="1" stroke="#82ca9d" fill="#82ca9d" />
-            <Area type="monotone" dataKey="hoagiay" stackId="1" stroke="#ffc658" fill="#ffc658" />
+            <Area type="monotone" dataKey="hoagiay" stackId="1" stroke="#ffc658" fill="#ffc658" /> */}
           </AreaChart>
         </ResponsiveContainer>
       </div>
     </div>
   )
+}
+
+function getColor(index: number, opacity: number = 1): string {
+  const colors = [
+    '#8884d8', '#82ca9d', '#ffc658', '#ff7f50', '#00bfff',
+    '#ff69b4', '#8a2be2', '#a52a2a', '#5f9ea0', '#ff6347'
+  ]
+  const color = colors[index % colors.length]
+  return opacity < 1
+    ? color.replace(')', `, ${opacity})`).replace('rgb', 'rgba')
+    : color
 }
