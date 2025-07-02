@@ -6,10 +6,12 @@ interface TableHeaderProps<T> {
 
 const TableHeader = <T,>({ columns }: TableHeaderProps<T>)=> {
   return (
-    <thead>
+    <thead className='bg-gray-900 text-white'>
       <tr>
         {columns.map((col)=>(
-          <th key={col.key.toString()} className="px-4 py-2 text-left text-sm font-medium text-black">
+          <th key={col.key.toString()} className={`px-4 py-2 text-sm font-medium ${
+              col.key === 'isPaid' ? 'text-center' : 'text-left'
+            }`}>
             {col.label}
           </th>
         ))}
