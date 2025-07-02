@@ -1,8 +1,4 @@
-import { Column } from '@/app/components/table/table.item'
-
-interface TableHeaderProps<T> {
-  columns: Column<T>[];
-}
+import { TableHeaderProps } from '@/app/components/table/table.item'
 
 const TableHeader = <T,>({ columns }: TableHeaderProps<T>)=> {
   return (

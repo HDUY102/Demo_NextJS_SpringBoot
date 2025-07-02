@@ -14,7 +14,13 @@ export interface Orders{
     totalAmount: string,
     isPaid: boolean,
     details: DetailOrderDTO[];
-    orderHistoryJson: JSON
+    orderHistoryJson: OrderStatusHistory[] | string;
+}
+
+export interface OrderStatusHistory {
+  newStatusId: number;
+  note?: string;
+  updatedAt?: string;
 }
 
 export const useOrders = () =>{

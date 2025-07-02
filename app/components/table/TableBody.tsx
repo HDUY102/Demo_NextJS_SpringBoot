@@ -1,12 +1,6 @@
 import React from 'react';
-import { Column } from './table.item';
+import {TableBodyProps } from './table.item';
 import TableDetail from '@/app/components/table/TableDetail';
-
-interface TableBodyProps<T> {
-  data: T[];
-  columns: Column<T>[];
-  expandedRows?: Record<string, boolean>;
-}
 
 const TableBody = <T extends { id?: string | number }>({ data, columns,expandedRows = {}}: TableBodyProps<T>) => {
   return (

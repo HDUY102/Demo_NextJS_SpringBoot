@@ -1,11 +1,29 @@
 'use client'
 import React, { useState } from 'react'
 import TableHeader from '../../components/table/TableHeader'
-import { Orders, useOrders } from '@/hooks/useOrders';
-import { Column } from '@/app/components/table/table.item';
+import { Orders, OrderStatusHistory, useOrders } from '@/hooks/useOrders';
+import { CategoryItem, Column } from '@/app/components/table/table.item';
 import TableBody from '@/app/components/table/TableBody';
 import axiosInstance from '@/lib/axios';
 import TableCategory from '@/app/components/table/TableCategory';
+
+function getLatestStatus(order: Orders): number | undefined {
+  try {
+    const history: OrderStatusHistory[] =
+      typeof order.orderHistoryJson === 'string'
+        ? JSON.parse(order.orderHistoryJson)
+        : order.orderHistoryJson;
+
+    console.log(`👀 Raw orderHistoryJson for order ${order.id}:`, history);
+    
+    const latestStatus = history.at(-1)?.newStatusId;
+    console.log(`📦 Order ${order.id} → statusId:`, latestStatus);
+    return latestStatus;
+  } catch (err) {
+    console.warn('⚠️ Lỗi phân tích orderHistoryJson:', err);
+    return undefined;
+  }
+}
 
 export default function OrderPage () {
   const { orders, isLoading, isError,mutate } = useOrders();
@@ -41,7 +59,7 @@ export default function OrderPage () {
 
   const handleCancel = async (orderId: string | number) => {
     try{
-      const newStatusId = 6; // New -> Canceled
+      const newStatusId = 7; // New -> Canceled
       await axiosInstance.put(`orders/${orderId}/status`,{
           currentStatusId: newStatusId,
           note: 'Đã hủy đơn hàng'
@@ -53,6 +71,31 @@ export default function OrderPage () {
       console.error("❌ Lỗi khi xác nhận đơn:", error);
       alert("Cập nhật trạng thái thất bại!");
   }};
+
+  const orderCategories: CategoryItem<Orders>[] = [
+    {
+      key: 'all',
+      label: 'Tất cả',
+      filterFn: () => true,
+    },
+    {
+      key: 1,
+      label: 'Đơn mới',
+      filterFn: (order:any) => getLatestStatus(order) === 1,
+    },
+    {
+      key: 2,
+      label: 'Đã xác nhận',
+      filterFn: (order:any) => getLatestStatus(order) === 2,
+    },
+    {
+      key: 6,
+      label: 'Đã hủy',
+      filterFn: (order:any) => getLatestStatus(order) === 7,
+    },
+  ];
+  const [selectedCategory, setSelectedCategory] = useState<CategoryItem<Orders>>(orderCategories[0]);
+
 
   const orderColumns: Column<Orders>[] = [
     {
@@ -113,16 +156,22 @@ export default function OrderPage () {
     },
   ];
 
+  const filteredOrders = selectedCategory?.filterFn
+    ? orders?.filter(selectedCategory.filterFn)
+    : orders;
+
   if (isLoading) return <div className="p-4">Loading...</div>
   if (isError) return <div className="p-4 text-red-500">Failed to load orders</div>
-  console.log(orders)
+  // console.log(orders)
   return (
     <div className="p-4">
-      <TableCategory />
+      <TableCategory categories={orderCategories}
+        selectedKey={selectedCategory?.key ?? null}
+        onSelectCategory={setSelectedCategory}/>
       <div className="shadow-2xl border rounded">
         <table className="min-w-full divide-y divide-gray-200 text-sm">
           <TableHeader columns={orderColumns} />
-          <TableBody data={orders || []} columns={orderColumns} expandedRows={expandedRows}/>
+          <TableBody data={filteredOrders || []} columns={orderColumns} expandedRows={expandedRows}/>
         </table>
       </div>
     </div>
