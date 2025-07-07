@@ -3,13 +3,23 @@ export interface Column<T> {
   key: keyof T | string;
   label: string;
   render?: (item: T, index?: number) => React.ReactNode;
+  isSortable?: boolean;
 }
 
 // Table Header
 export interface TableHeaderProps<T> {
   columns: Column<T>[];
+  onSort: (columnKey: string) => void;
+  // sortKey: string | null;
+  // sortDirection: SortDirection;
 }
 
+// Sort Data
+export type SortDirection = 'asc' | 'desc'
+export interface SortState<T>{
+  key: keyof T | string | null;
+  direction: null | SortDirection;
+}
 
 // Table Body
 export interface TableBodyProps<T> {

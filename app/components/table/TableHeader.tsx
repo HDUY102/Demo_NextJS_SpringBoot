@@ -1,6 +1,8 @@
 import { TableHeaderProps } from '@/app/components/table/table.item'
+import { BiSort } from "react-icons/bi";
 
-const TableHeader = <T,>({ columns }: TableHeaderProps<T>)=> {
+
+const TableHeader = <T,>({ columns,onSort}: TableHeaderProps<T>)=> {
   return (
     <thead className='bg-gray-900 text-white'>
       <tr>
@@ -9,6 +11,7 @@ const TableHeader = <T,>({ columns }: TableHeaderProps<T>)=> {
               col.key === 'isPaid' ? 'text-center' : 'text-left'
             }`}>
             {col.label}
+            {col.isSortable && (<button className='ml-1 hover:cursor-pointer' onClick={()=> onSort(col.key.toString())}><BiSort/></button>)}
           </th>
         ))}
       </tr>

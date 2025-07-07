@@ -1,12 +1,13 @@
 'use client'
-import React, { useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import TableHeader from '../../components/table/TableHeader'
 import { Orders, OrderStatusHistory, useOrders } from '@/hooks/useOrders';
-import { CategoryItem, Column } from '@/app/components/table/table.item';
+import { CategoryItem, Column, SortState} from '@/app/components/table/table.item';
 import TableBody from '@/app/components/table/TableBody';
 import axiosInstance from '@/lib/axios';
 import TableCategory from '@/app/components/table/TableCategory';
 
+// Get Status Id
 function getLatestStatus(order: Orders): number | undefined {
   try {
     const history: OrderStatusHistory[] =
@@ -28,50 +29,13 @@ function getLatestStatus(order: Orders): number | undefined {
 export default function OrderPage () {
   const { orders, isLoading, isError,mutate } = useOrders();
 
+  // Is Open Details?
   const [expandedRows, setExpandedRows] = useState<Record<string, boolean>>({});
   const toggleRow = (id: string) => {
     setExpandedRows((prev) => ({ ...prev, [id]: !prev[id] }));
   };
 
-  const handleConfirm = async (orderId: string | number) => {
-    try {
-      const newStatusId = 2; // New -> Processing
-      await axiosInstance.put( `/orders/${orderId}/status`,
-        {
-            currentStatusId: newStatusId,
-            note: 'Xác nhận đơn hàng',
-          // Use Params URL
-          // params: {
-          //   orderId,
-          //   newStatusId,
-          //   note: 'Xác nhận đơn hàng',
-          // },
-        },
-      );
-
-      console.log("✅ Đơn đã được xác nhận:");
-
-      mutate();
-  }catch (error: any) {
-    console.error("❌ Lỗi khi xác nhận đơn:", error);
-    alert("Cập nhật trạng thái thất bại!");
-  }};
-
-  const handleCancel = async (orderId: string | number) => {
-    try{
-      const newStatusId = 7; // New -> Canceled
-      await axiosInstance.put(`orders/${orderId}/status`,{
-          currentStatusId: newStatusId,
-          note: 'Đã hủy đơn hàng'
-        })
-      console.log("❌ Đơn đã hủy:");
-
-      mutate();
-    }catch (error: any){
-      console.error("❌ Lỗi khi xác nhận đơn:", error);
-      alert("Cập nhật trạng thái thất bại!");
-  }};
-
+  // Init Category Order
   const orderCategories: CategoryItem<Orders>[] = [
     {
       key: 'all',
@@ -94,9 +58,48 @@ export default function OrderPage () {
       filterFn: (order:any) => getLatestStatus(order) === 7,
     },
   ];
+  // Select Category Order
   const [selectedCategory, setSelectedCategory] = useState<CategoryItem<Orders>>(orderCategories[0]);
+  const filteredOrders = selectedCategory?.filterFn
+    ? orders?.filter(selectedCategory.filterFn)
+    : orders;
 
+  // Actions change state of Order
+  const handleConfirm = async (orderId: string | number) => {
+    try {
+      const newStatusId = 2; // New -> Processing
+      await axiosInstance.put( `/orders/${orderId}/status`,
+        {
+            currentStatusId: newStatusId,
+            note: 'Xác nhận đơn hàng',
+          // Use Params URL
+          // params: {
+          //   orderId,
+          //   newStatusId,
+          //   note: 'Xác nhận đơn hàng',
+          // },
+        },
+      );
+      mutate();
+  }catch (error: any) {
+    console.error("❌ Lỗi khi xác nhận đơn:", error);
+    alert("Cập nhật trạng thái thất bại!");
+  }};
 
+  const handleCancel = async (orderId: string | number) => {
+    try{
+      const newStatusId = 7; // New -> Canceled
+      await axiosInstance.put(`orders/${orderId}/status`,{
+          currentStatusId: newStatusId,
+          note: 'Đã hủy đơn hàng'
+        })
+      mutate();
+    }catch (error: any){
+      console.error("❌ Lỗi khi hủy đơn:", error);
+      alert("Cập nhật trạng thái thất bại!");
+  }};
+
+  // Fill data Order to table
   const orderColumns: Column<Orders>[] = [
     {
       key: "number",
@@ -106,12 +109,14 @@ export default function OrderPage () {
     {
       key: "customerName",
       label: "Customer Name",
+      isSortable: true,
     },
     {
       key: "dateOrder",
       label: "Order Date",
       render: (order) =>
         new Date(order.dateOrder).toLocaleDateString("vi-VN"),
+      isSortable: true,
     },
     {
       key: "details",
@@ -126,6 +131,7 @@ export default function OrderPage () {
     {
       key: "totalAmount",
       label: "Total Amount",
+      isSortable: true,
     },
     {
       key: "isPaid",
@@ -136,6 +142,7 @@ export default function OrderPage () {
         </div> : <div className='rounded-2xl bg-amber-500 p-0.5 text-center'>
           Chưa thanh toán
         </div>),
+      isSortable: true,
     },
     {
       key: "actions",
@@ -156,22 +163,57 @@ export default function OrderPage () {
     },
   ];
 
-  const filteredOrders = selectedCategory?.filterFn
-    ? orders?.filter(selectedCategory.filterFn)
-    : orders;
+  // Sort Order
+  const [sortState, setOnSortState] = useState<SortState<Orders>>({ key: null, direction: null });
+  const handleSort = (columnKey: string) =>{
+    setOnSortState((prev:any) => {
+      if(prev.key === columnKey){
+        if(prev.direction === 'asc') return {key: columnKey, direction: 'desc'}
+        else return { key: null, direction: null };
+      }
+      return { key: columnKey, direction: 'asc' };
+    })
+  }
+
+const sortedOrders = useMemo(() => {
+  if (!sortState.key || !sortState.direction) return filteredOrders ?? [];
+
+  const sorted = [...(filteredOrders ?? [])].sort((a, b) => {
+    const key = sortState.key as keyof Orders;
+    const aVal = a[key];
+    const bVal = b[key];
+
+    if (aVal == null || bVal == null) return 0;
+
+    if (typeof aVal === 'string') {
+      return sortState.direction === 'asc'
+        ? aVal.localeCompare(bVal as string)
+        : (bVal as string).localeCompare(aVal);
+    }
+
+    if (typeof aVal === 'number' || typeof aVal === 'boolean' || aVal instanceof Date) {
+      return sortState.direction === 'asc'
+        ? (aVal > bVal ? 1 : -1)
+        : (aVal < bVal ? 1 : -1);
+    }
+
+    return 0;
+  });
+
+  return sorted;
+}, [filteredOrders, sortState]);
+
 
   if (isLoading) return <div className="p-4">Loading...</div>
   if (isError) return <div className="p-4 text-red-500">Failed to load orders</div>
-  // console.log(orders)
   return (
     <div className="p-4">
-      <TableCategory categories={orderCategories}
-        selectedKey={selectedCategory?.key ?? null}
+      <TableCategory categories={orderCategories} selectedKey={selectedCategory?.key ?? null}
         onSelectCategory={setSelectedCategory}/>
       <div className="shadow-2xl border rounded">
         <table className="min-w-full divide-y divide-gray-200 text-sm">
-          <TableHeader columns={orderColumns} />
-          <TableBody data={filteredOrders || []} columns={orderColumns} expandedRows={expandedRows}/>
+          <TableHeader columns={orderColumns} onSort={handleSort}/>
+          <TableBody data={sortedOrders} columns={orderColumns} expandedRows={expandedRows}/>
         </table>
       </div>
     </div>
