@@ -27,4 +27,15 @@ public class OrderController extends BaseController<OrderDTO, OrderDTO> {
         List<OrderDTO> orders = orderService.findOrdersByCustomerName(customerName);
         return ResponseEntity.ok(orders);
     }
+    
+    @PutMapping("/{orderId}/status")
+//    public ResponseEntity<OrderDTO> updateOrderStatus( @PathVariable Long orderId, @RequestParam("newStatusId") Long newStatusId,
+//            @RequestParam(value = "note", required = false) String note) { // Truyền thông tin vào params URL
+    public ResponseEntity<OrderDTO> updateOrderStatus(@PathVariable Long orderId, @RequestBody OrderDTO orderDTO){
+//        OrderDTO updateOrder = orderService.updateOrderStatus(orderId, newStatusId, note); // dùng params URL để cập nhật 
+    	Long newStatusId = orderDTO.getCurrentStatusId();
+    	String orderHistoryJson = orderDTO.getOrderHistoryJson();
+    	OrderDTO updateOrder = orderService.updateOrderStatus(orderId, newStatusId, orderHistoryJson);
+        return ResponseEntity.ok(updateOrder);
+    }
 }

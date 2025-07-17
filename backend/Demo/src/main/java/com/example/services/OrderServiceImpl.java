@@ -11,7 +11,7 @@ import com.example.mapper.OrderMapper;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.type.*;
 import com.fasterxml.jackson.databind.*;
-
+import org.springframework.data.domain.Sort;
 import jakarta.transaction.Transactional;
 import lombok.*;
 
@@ -53,6 +53,13 @@ public class OrderServiceImpl extends BaseServiceImpl<Orders, OrderDTO, OrderDTO
         this.flowerTypesRepository = flowerTypesRepository;
         this.flowerPriceRepository = flowerPriceRepository;
     }
+    
+    // Sort by Date
+    @Override
+    public List<OrderDTO> findAll() {
+        Sort sort = Sort.by(Sort.Direction.DESC, "dateOrder"); // Default sort by date desc
+        return orderMapper.toDtoList(orderRepository.findAll(sort));
+    }
 
     @Override
     @Transactional
@@ -66,13 +73,10 @@ public class OrderServiceImpl extends BaseServiceImpl<Orders, OrderDTO, OrderDTO
                 .orElseThrow(() -> new RuntimeException("Customer not found with ID: " + dto.getCustomerId()));
         entity.setCustomer(customer);
 
-        // Đơn hàng ONLINE: Trạng thái ban đầu: PENDING
-        OrderStatus initialStatus = (dto.getCurrentStatusId() != null)
-                ? orderStatusRepository.findById(dto.getCurrentStatusId())
-                    .orElseThrow(() -> new RuntimeException("Order Status not found with ID: " + dto.getCurrentStatusId()))
-                : orderStatusRepository.findByStatusCode("PENDING")
-                    .orElseThrow(() -> new RuntimeException("PENDING status not found."));
-        String initialNote = "Đơn hàng đã được tạo.";
+        // Đơn hàng ONLINE: Trạng thái ban đầu: NEW
+        OrderStatus initialStatus = orderStatusRepository.findByStatusCode("NEW")
+        		.orElseThrow(() -> new RuntimeException("NEW status not found."));
+        String initialNote = "Đơn hàng mới đã được tạo.";
         entity.setCurrentStatus(initialStatus);
         
         List<StatusHistoryEntry> historyEntries = new ArrayList<>();
@@ -214,5 +218,37 @@ public class OrderServiceImpl extends BaseServiceImpl<Orders, OrderDTO, OrderDTO
      private String getLoggedInUser() {
          // Ví dụ: return SecurityContextHolder.getContext().getAuthentication().getName();
          return "System"; // Mặc định là "System" nếu không có thông tin người dùng đăng nhập
+     }
+     
+     @Override
+     @Transactional
+     public OrderDTO updateOrderStatus(Long orderId, Long newStatusId, String note) {
+         Orders order = orderRepository.findById(orderId)
+                 .orElseThrow(() -> new RuntimeException("Order not found with ID: " + orderId));
+
+         OrderStatus oldStatus = order.getCurrentStatus();
+         OrderStatus newStatus = orderStatusRepository.findById(newStatusId)
+                 .orElseThrow(() -> new RuntimeException("New Order Status not found with ID: " + newStatusId));
+
+         if (oldStatus.getId().equals(newStatus.getId())) {
+             throw new IllegalArgumentException("Order is already in the target status.");
+         }
+
+         order.setCurrentStatus(newStatus);
+         
+         // Ghi lịch sử thay đổi trạng thái
+         String historyNote = note != null && !note.isEmpty()
+                              ? note
+                              : "Trạng thái đơn hàng được cập nhật từ " + oldStatus.getStatusName() + " sang " + newStatus.getStatusName() + ".";
+         addHistoryEntryToJson(order, oldStatus, newStatus, getLoggedInUser(), historyNote);
+
+         // Nếu chuyển sang trạng thái hoàn thành/hủy, có thể cập nhật isPaid
+         if (newStatus.getStatusCode().equals("COMPLETED")) { // Giả sử COMPLETED là trạng thái đã thanh toán
+             order.setIsPaid(true);
+         } else if (newStatus.getStatusCode().equals("CANCELED")) {
+             // order.setIsPaid(false); 
+         }
+
+         return baseMapper.toDTO(orderRepository.save(order));
      }
 }
