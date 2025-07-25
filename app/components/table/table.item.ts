@@ -10,8 +10,9 @@ export interface Column<T> {
 export interface TableHeaderProps<T> {
   columns: Column<T>[];
   onSort: (columnKey: string) => void;
-  // sortKey: string | null;
-  // sortDirection: SortDirection;
+  filterValues: Record<string, FilterOption[]>;
+  // filterValues: Record<string, string[]>;
+  onFilter: (key: string, value: string | null) => void;
 }
 
 // Sort Data
@@ -39,4 +40,18 @@ export interface TableCategoryProps<T> {
   categories: CategoryItem<T>[];
   selectedKey: CategoryItem<T>['key'];
   onSelectCategory: (category: CategoryItem<T>) => void;
+}
+
+  // Table Filter
+export interface TableFilterProps<T> {
+  keyFilter: string;
+  filterValues: FilterOption[];
+  // filterValues: string[];
+  onFilter: (key: string, value: string | null) => void;
+}
+
+
+export interface FilterOption {
+  value: string; // yyyy-mm-dd
+  label: string; // dd/mm/yyyy
 }
