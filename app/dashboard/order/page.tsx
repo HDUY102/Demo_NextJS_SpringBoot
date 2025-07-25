@@ -2,7 +2,7 @@
 import React, { useMemo, useState } from 'react'
 import TableHeader from '../../components/table/TableHeader'
 import { Orders, OrderStatusHistory, useOrders } from '@/hooks/useOrders';
-import { CategoryItem, Column, SortState} from '@/app/components/table/table.item';
+import { CategoryItem, Column, FilterOption, SortState} from '@/app/components/table/table.item';
 import TableBody from '@/app/components/table/TableBody';
 import axiosInstance from '@/lib/axios';
 import TableCategory from '@/app/components/table/TableCategory';
@@ -72,8 +72,7 @@ export default function OrderPage () {
         {
             currentStatusId: newStatusId,
             note: 'Xác nhận đơn hàng',
-          // Use Params URL
-          // params: {
+          // params: { // Use Params URL
           //   orderId,
           //   newStatusId,
           //   note: 'Xác nhận đơn hàng',
@@ -163,6 +162,59 @@ export default function OrderPage () {
     },
   ];
 
+  // Table Filter 
+  const [filters, setFilters] = useState<Record<string, string | null>>({});
+  const handleFilter = (key: string, value: string | null) => {
+    setFilters((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const getFilterValuesForColumn = (key: keyof Orders): FilterOption[] => {
+  const unique = new Set<string>();
+  orders?.forEach((order) => {
+    const val:any = order[key];
+    if (val != null) {
+      if (key === "dateOrder") {
+        const date = new Date(val);
+        if (!isNaN(date.getTime())) {
+          const formatted = date.toISOString().split("T")[0]; // yyyy-mm-dd
+          unique.add(formatted);
+        }
+      } else {
+        unique.add(String(val));
+      }
+    }
+  });
+
+    if (key === "dateOrder") {
+      return Array.from(unique).map((value) => ({
+        value,
+        label: new Date(value).toLocaleDateString("vi-VN"),
+      }));
+    }
+
+    return Array.from(unique).map((v) => ({ value: v, label: v }));
+  };
+
+  const filteredAndSearchedOrders = useMemo(() => {
+    if (!filteredOrders) return [];
+
+    return filteredOrders.filter((order) => {
+      return Object.entries(filters).every(([key, selectedValue]) => {
+        if (!selectedValue) return true; // nếu đang chọn "Tất cả"
+
+        const value = order[key as keyof Orders];
+        if (value === null || value === undefined) return false;
+
+        if (key === "dateOrder") {
+          const formatted = new Date(value as string).toISOString().split("T")[0];
+          return formatted === selectedValue;
+        }
+
+        return String(value) === selectedValue;
+      });
+    });
+  }, [filteredOrders, filters]);
+
   // Sort Order
   const [sortState, setOnSortState] = useState<SortState<Orders>>({ key: null, direction: null });
   const handleSort = (columnKey: string) =>{
@@ -174,35 +226,33 @@ export default function OrderPage () {
       return { key: columnKey, direction: 'asc' };
     })
   }
+  const sortedOrders = useMemo(() => {
+    if (!sortState.key || !sortState.direction) return filteredAndSearchedOrders;
 
-const sortedOrders = useMemo(() => {
-  if (!sortState.key || !sortState.direction) return filteredOrders ?? [];
+    const sorted = [...(filteredAndSearchedOrders ?? [])].sort((a, b) => {
+      const key = sortState.key as keyof Orders;
+      const aVal = a[key];
+      const bVal = b[key];
 
-  const sorted = [...(filteredOrders ?? [])].sort((a, b) => {
-    const key = sortState.key as keyof Orders;
-    const aVal = a[key];
-    const bVal = b[key];
+      if (aVal == null || bVal == null) return 0;
 
-    if (aVal == null || bVal == null) return 0;
+      if (typeof aVal === 'string') {
+        return sortState.direction === 'asc'
+          ? aVal.localeCompare(bVal as string)
+          : (bVal as string).localeCompare(aVal);
+      }
 
-    if (typeof aVal === 'string') {
-      return sortState.direction === 'asc'
-        ? aVal.localeCompare(bVal as string)
-        : (bVal as string).localeCompare(aVal);
-    }
+      if (typeof aVal === 'number' || typeof aVal === 'boolean' || aVal instanceof Date) {
+        return sortState.direction === 'asc'
+          ? (aVal > bVal ? 1 : -1)
+          : (aVal < bVal ? 1 : -1);
+      }
 
-    if (typeof aVal === 'number' || typeof aVal === 'boolean' || aVal instanceof Date) {
-      return sortState.direction === 'asc'
-        ? (aVal > bVal ? 1 : -1)
-        : (aVal < bVal ? 1 : -1);
-    }
+      return 0;
+    });
 
-    return 0;
-  });
-
-  return sorted;
-}, [filteredOrders, sortState]);
-
+    return sorted;
+  }, [filteredAndSearchedOrders, sortState]);
 
   if (isLoading) return <div className="p-4">Loading...</div>
   if (isError) return <div className="p-4 text-red-500">Failed to load orders</div>
@@ -212,7 +262,14 @@ const sortedOrders = useMemo(() => {
         onSelectCategory={setSelectedCategory}/>
       <div className="shadow-2xl border rounded">
         <table className="min-w-full divide-y divide-gray-200 text-sm">
-          <TableHeader columns={orderColumns} onSort={handleSort}/>
+          <TableHeader columns={orderColumns} onSort={handleSort} onFilter={handleFilter} filterValues={{
+            customerName: getFilterValuesForColumn("customerName"),
+            dateOrder: getFilterValuesForColumn("dateOrder"),
+            isPaid: [
+              { value: "true", label: "Đã thanh toán" },
+              { value: "false", label: "Chưa thanh toán" }
+            ],
+          }}/>
           <TableBody data={sortedOrders} columns={orderColumns} expandedRows={expandedRows}/>
         </table>
       </div>
