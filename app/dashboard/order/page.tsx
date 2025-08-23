@@ -1,5 +1,5 @@
 'use client'
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import TableHeader from '../../components/table/TableHeader'
 import { Orders, OrderStatusHistory, useOrders } from '@/hooks/useOrders';
 import { CategoryItem, Column, FilterOption, SortState} from '@/app/components/table/table.item';
@@ -27,7 +27,23 @@ function getLatestStatus(order: Orders): number | undefined {
 }
 
 export default function OrderPage () {
-  const { orders, isLoading, isError,mutate } = useOrders();
+  const [searchText, setSearchText] = useState('');
+  const [debouncedSearchText, setDebouncedSearchText] = useState('');
+  const { orders, isLoading, isError,mutate } = useOrders(debouncedSearchText);
+
+  // Search Change
+  const handleSearchChange = (value: string) => {
+    setSearchText(value);
+    if (value.trim() === '') {
+      setDebouncedSearchText('');
+    }
+  }
+  // Press "Enter" for search
+  const handleSearchEnter = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      setDebouncedSearchText(searchText);
+    }
+  }
 
   // Is Open Details?
   const [expandedRows, setExpandedRows] = useState<Record<string, boolean>>({});
@@ -197,11 +213,10 @@ export default function OrderPage () {
 
   const filteredAndSearchedOrders = useMemo(() => {
     if (!filteredOrders) return [];
-
+    
     return filteredOrders.filter((order) => {
-      return Object.entries(filters).every(([key, selectedValue]) => {
-        if (!selectedValue) return true; // nếu đang chọn "Tất cả"
-
+      const matchesFilters = Object.entries(filters).every(([key, selectedValue]) => {
+        if (!selectedValue) return true;
         const value = order[key as keyof Orders];
         if (value === null || value === undefined) return false;
 
@@ -209,9 +224,12 @@ export default function OrderPage () {
           const formatted = new Date(value as string).toISOString().split("T")[0];
           return formatted === selectedValue;
         }
-
-        return String(value) === selectedValue;
+        return String(value).toLowerCase() === selectedValue.toLowerCase();
       });
+      // Xóa logic tìm kiếm trên front-end, vì đã xử lý ở back-end
+      // const matchesSearch = searchText.trim() === '' || ...;
+      // return matchesFilters && matchesSearch;
+      return matchesFilters;
     });
   }, [filteredOrders, filters]);
 
@@ -259,7 +277,7 @@ export default function OrderPage () {
   return (
     <div className="p-4">
       <TableCategory categories={orderCategories} selectedKey={selectedCategory?.key ?? null}
-        onSelectCategory={setSelectedCategory}/>
+        onSelectCategory={setSelectedCategory} searchText={searchText} onSearchChange={handleSearchChange} onKeyDown={handleSearchEnter}/>
       <div className="shadow-2xl border rounded">
         <table className="min-w-full divide-y divide-gray-200 text-sm">
           <TableHeader columns={orderColumns} onSort={handleSort} onFilter={handleFilter} filterValues={{
