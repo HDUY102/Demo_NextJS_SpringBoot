@@ -3,80 +3,80 @@ import { useSellFlowers } from '@/hooks/useSellFlowers'
 import React, { useMemo } from 'react'
 import {AreaChart, Area, XAxis, YAxis,  CartesianGrid,  Tooltip,  Legend,  ResponsiveContainer} from 'recharts'
 
-// const data = [
-//   {
-//     month: 'Tháng 1',
-//     hoatuoi: 4000,
-//     hoagia: 2400,
-//     phukien: 2400,
-//   },
-//   {
-//     month: 'Tháng 2',
-//     hoatuoi: 3000,
-//     hoagia: 1398,
-//     phukien: 2210,
-//   },
-//   {
-//     month: 'Tháng 3',
-//     hoatuoi: 2000,
-//     hoagia: 9800,
-//     phukien: 2290,
-//   },
-//   {
-//     month: 'Tháng 4',
-//     hoatuoi: 2780,
-//     hoagia: 3908,
-//     phukien: 2000,
-//   },
-//   {
-//     month: 'Tháng 5',
-//     hoatuoi: 2780,
-//     hoagia: 3908,
-//     phukien: 2000,
-//   },
-//   {
-//     month: 'Tháng 6',
-//     hoatuoi: 2780,
-//     hoagia: 3208,
-//     phukien: 2000,
-//   },
-//   {
-//     month: 'Tháng 7',
-//     hoatuoi: 2780,
-//     hoagia: 3908,
-//     phukien: 2000,
-//   },
-//   {
-//     month: 'Tháng 8',
-//     hoatuoi: 2780,
-//     hoagia: 7908,
-//     phukien: 8000,
-//   },
-//   {
-//     month: 'Tháng 9',
-//     hoatuoi: 2780,
-//     hoagia: 3908,
-//     phukien: 7000,
-//   },
-//   {
-//     month: 'Tháng 10',
-//     hoatuoi: 2780,
-//     hoagia: 3908,
-//     phukien: 2000,
-//   },
-//   {
-//     month: 'Tháng 11',
-//     hoatuoi: 2780,
-//     hoagia: 3908,
-//     phukien: 3000,
-//   },
-//   {
-//     month: 'Tháng 12',
-//     hoatuoi: 2780,
-//     hoagia: 7000,
-//     phukien: 2000,
-//   },
-// ]
+const data = [
+  {
+    month: 'Tháng 1',
+    hoatuoi: 4000,
+    hoagia: 2400,
+    phukien: 2400,
+  },
+  {
+    month: 'Tháng 2',
+    hoatuoi: 3000,
+    hoagia: 1398,
+    phukien: 2210,
+  },
+  {
+    month: 'Tháng 3',
+    hoatuoi: 2000,
+    hoagia: 9800,
+    phukien: 2290,
+  },
+  {
+    month: 'Tháng 4',
+    hoatuoi: 2780,
+    hoagia: 3908,
+    phukien: 2000,
+  },
+  {
+    month: 'Tháng 5',
+    hoatuoi: 2780,
+    hoagia: 3908,
+    phukien: 2000,
+  },
+  {
+    month: 'Tháng 6',
+    hoatuoi: 2780,
+    hoagia: 3208,
+    phukien: 2000,
+  },
+  {
+    month: 'Tháng 7',
+    hoatuoi: 2780,
+    hoagia: 3908,
+    phukien: 2000,
+  },
+  {
+    month: 'Tháng 8',
+    hoatuoi: 2780,
+    hoagia: 7908,
+    phukien: 8000,
+  },
+  {
+    month: 'Tháng 9',
+    hoatuoi: 2780,
+    hoagia: 3908,
+    phukien: 7000,
+  },
+  {
+    month: 'Tháng 10',
+    hoatuoi: 2780,
+    hoagia: 3908,
+    phukien: 2000,
+  },
+  {
+    month: 'Tháng 11',
+    hoatuoi: 2780,
+    hoagia: 3908,
+    phukien: 3000,
+  },
+  {
+    month: 'Tháng 12',
+    hoatuoi: 2780,
+    hoagia: 7000,
+    phukien: 2000,
+  },
+]
 
 export default function StatisticalPage() {
   const {sellFlowers, isLoading, isError} = useSellFlowers();
@@ -132,9 +132,9 @@ export default function StatisticalPage() {
             {flowerTypes.map((type,index)=>(
               <Area key={type} type="monotone" dataKey={type} stackId="1" stroke={getColor(index)} fill={getColor(index,0.4)} />
             ))}
-            {/* <Area type="monotone" dataKey="hoahong" stackId="1" stroke="#8884d8" fill="#8884d8" />
+            <Area type="monotone" dataKey="hoahong" stackId="1" stroke="#8884d8" fill="#8884d8" />
             <Area type="monotone" dataKey="hoaly" stackId="1" stroke="#82ca9d" fill="#82ca9d" />
-            <Area type="monotone" dataKey="hoagiay" stackId="1" stroke="#ffc658" fill="#ffc658" /> */}
+            <Area type="monotone" dataKey="hoagiay" stackId="1" stroke="#ffc658" fill="#ffc658" />
           </AreaChart>
         </ResponsiveContainer>
       </div>
