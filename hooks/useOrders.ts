@@ -1,5 +1,11 @@
+import axiosInstance from "@/lib/axios";
 import { fetcher } from "@/lib/fetcher"
 import useSWR from "swr"
+
+const postFetcher = async (url: string, body: any) => {
+    const response = await axiosInstance.post(url, body);
+    return response.data;
+};
 
 export interface DetailOrderDTO {
   quantity: number;
@@ -23,8 +29,11 @@ export interface OrderStatusHistory {
   updatedAt?: string;
 }
 
-export const useOrders = () =>{
-    const {data, error, isLoading, mutate} = useSWR<Orders[]>('/orders',fetcher)
+export const useOrders = (keyword: string) =>{
+    const {data, error, isLoading, mutate} = useSWR<Orders[]>(
+        ['/orders', keyword],
+        ([url, keyword]) => postFetcher(url, { keyword }))
+    // const {data, error, isLoading, mutate} = useSWR<Orders[]>('/orders',fetcher)
     return{
         orders: data,
         isLoading,
