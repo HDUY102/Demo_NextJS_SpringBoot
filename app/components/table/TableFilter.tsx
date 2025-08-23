@@ -5,7 +5,7 @@ import { Button } from ".././ui/button"
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger,} from "@/app/components/ui/dropdown-menu"
 import { TableFilterProps } from "./table.item";
 
-export function TableFilter<T>({ keyFilter, filterValues, onFilter }: TableFilterProps<T>) {
+export function TableFilter<T>({ keyFilter, filterValues, onFilter}: TableFilterProps<T>) {
   const [selectedValue, setSelectedValue] = React.useState<string | null>(null);
 
   const handleSelect = (value: string | null) => {
@@ -16,7 +16,7 @@ export function TableFilter<T>({ keyFilter, filterValues, onFilter }: TableFilte
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="sm" className="p-1"><FiFilter /></Button>
+        <Button variant="ghost" size="sm" className="p-1 mr-0.5"><FiFilter /></Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56">
         <DropdownMenuLabel>Lọc theo</DropdownMenuLabel>
