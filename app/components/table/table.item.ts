@@ -12,6 +12,9 @@ export interface TableHeaderProps<T> {
   onSort: (columnKey: string) => void;
   filterValues: Record<string, FilterOption[]>;
   onFilter: (key: string, value: string | null) => void;
+  searchText: Record<string, string>;
+  onSearchChange: (key: string, value: string) => void;
+  onKeyDown?: (key: string, event: React.KeyboardEvent<HTMLInputElement>) => void;
 }
 
 // Sort Data
@@ -48,6 +51,9 @@ export interface TableFilterProps<T> {
   keyFilter: string;
   filterValues: FilterOption[];
   onFilter: (key: string, value: string | null) => void;
+  searchText: string;
+  onSearchChange: (value: string) => void;
+  onKeyDown?: (event: React.KeyboardEvent<HTMLInputElement>) => void;
 }
 export interface FilterOption {
   value: string; // yyyy-mm-dd

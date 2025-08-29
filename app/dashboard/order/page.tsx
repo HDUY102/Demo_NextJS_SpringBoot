@@ -30,18 +30,27 @@ export default function OrderPage () {
   const [searchText, setSearchText] = useState('');
   const [debouncedSearchText, setDebouncedSearchText] = useState('');
   const { orders, isLoading, isError,mutate } = useOrders(debouncedSearchText);
+  const [clientSearch, setClientSearch] = useState<Record<string, string>>({});
 
-  // Search Change
+  // Search Change (Get Text for Server-side)
   const handleSearchChange = (value: string) => {
     setSearchText(value);
     if (value.trim() === '') {
       setDebouncedSearchText('');
     }
   }
-  // Press "Enter" for search
+  // Press "Enter" for search (Call api Server-side)
   const handleSearchEnter = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       setDebouncedSearchText(searchText);
+    }
+  }
+
+  // Search Change (Get Text for Client side)
+  const handleSearchChangeClient = (key: string, value: string) => {
+    setClientSearch(prev => ({ ...prev, [key]: value }));
+    if (value.trim() === '') {
+      setDebouncedSearchText('');
     }
   }
 
@@ -77,8 +86,7 @@ export default function OrderPage () {
   // Select Category Order
   const [selectedCategory, setSelectedCategory] = useState<CategoryItem<Orders>>(orderCategories[0]);
   const filteredOrders = selectedCategory?.filterFn
-    ? orders?.filter(selectedCategory.filterFn)
-    : orders;
+    ? orders?.filter(selectedCategory.filterFn) : orders;
 
   // Actions change state of Order
   const handleConfirm = async (orderId: string | number) => {
@@ -226,12 +234,28 @@ export default function OrderPage () {
         }
         return String(value).toLowerCase() === selectedValue.toLowerCase();
       });
-      // Xóa logic tìm kiếm trên front-end, vì đã xử lý ở back-end
-      // const matchesSearch = searchText.trim() === '' || ...;
-      // return matchesFilters && matchesSearch;
-      return matchesFilters;
+      
+      // Logic Search Client
+      const matchesClientSearch = Object.entries(clientSearch).every(([key, searchValue]) => {
+        const orderValue = order[key as keyof Orders];
+        if (orderValue === null || orderValue === undefined) return false;
+
+        // Handle Search on col
+        const normalizedSearchValue = searchValue.toLowerCase().trim();
+
+        // Handle Search on col:"dateOrder"
+        if (key === "dateOrder" && typeof orderValue === 'string') {
+          const date = new Date(orderValue);
+          const formattedDate = date.toLocaleDateString('vi-VN'); // formart date VN
+          return formattedDate.includes(normalizedSearchValue)
+        }
+
+        // Search Other column
+        return String(orderValue).toLowerCase().includes(normalizedSearchValue);
     });
-  }, [filteredOrders, filters]);
+      return matchesFilters && matchesClientSearch;
+    });
+  }, [filteredOrders, filters, clientSearch]);
 
   // Sort Order
   const [sortState, setOnSortState] = useState<SortState<Orders>>({ key: null, direction: null });
@@ -287,7 +311,9 @@ export default function OrderPage () {
               { value: "true", label: "Đã thanh toán" },
               { value: "false", label: "Chưa thanh toán" }
             ],
-          }}/>
+          }}
+          searchText={clientSearch}
+          onSearchChange={handleSearchChangeClient}/>
           <TableBody data={sortedOrders} columns={orderColumns} expandedRows={expandedRows}/>
         </table>
       </div>
