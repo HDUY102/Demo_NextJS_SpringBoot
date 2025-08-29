@@ -9,4 +9,5 @@ import com.example.dtos.OrderDTO;
 public interface OrderService extends BaseService<Orders, OrderDTO, OrderDTO>{
 	List<OrderDTO> findOrdersByCustomerName(String customerName);
 	OrderDTO updateOrderStatus(Long orderId, Long newStatusId, String note);
+	List<OrderDTO> searchOrders(String keyword);
 }

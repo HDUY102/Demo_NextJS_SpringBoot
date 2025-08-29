@@ -5,8 +5,7 @@ import org.springframework.stereotype.Service;
 import com.example.demo.entity.*;
 import com.example.demo.generics.BaseServiceImpl;
 import com.example.demo.respository.*;
-import com.example.dtos.DetailOrderDTO;
-import com.example.dtos.OrderDTO;
+import com.example.dtos.*;
 import com.example.mapper.OrderMapper;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.type.*;
@@ -52,6 +51,16 @@ public class OrderServiceImpl extends BaseServiceImpl<Orders, OrderDTO, OrderDTO
         this.saleUnitsRepository = saleUnitsRepository;
         this.flowerTypesRepository = flowerTypesRepository;
         this.flowerPriceRepository = flowerPriceRepository;
+    }
+    
+    // Search Order Table
+    @Override
+    public List<OrderDTO> searchOrders(String keyword){
+    	if (keyword == null || keyword.trim().isEmpty()) {
+            return findAll();
+        }
+        List<Orders> orders = orderRepository.searchOrders(keyword);
+        return orderMapper.toDtoList(orders);
     }
     
     // Sort by Date

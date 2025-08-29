@@ -20,7 +20,7 @@ public abstract class BaseController<ReqDTO extends BaseDTO, ResDTO extends Base
         return ResponseEntity.ok(getService().findById(id));
     }
 
-    @PostMapping
+    @PostMapping("/create")
     public ResponseEntity<ResDTO> create(@RequestBody @Valid ReqDTO dto) {
         return ResponseEntity.ok(getService().save(dto));
     }

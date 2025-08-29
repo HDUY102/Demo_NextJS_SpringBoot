@@ -28,7 +28,7 @@ public class Orders extends BaseEntity{
 	@Column(precision = 19, scale = 0)
 	private BigDecimal totalAmount;
 	@Column(columnDefinition = "json")
-     private String orderHistoryJson;
+    private String orderHistoryJson;
 	
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "customer_id")

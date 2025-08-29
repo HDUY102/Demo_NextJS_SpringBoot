@@ -1,5 +1,6 @@
 package com.example.demo.controller;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,6 +21,22 @@ public class OrderController extends BaseController<OrderDTO, OrderDTO> {
     @Override
     protected BaseService<Orders, OrderDTO, OrderDTO> getService() {
         return orderService;
+    }
+    
+    @PostMapping
+    public ResponseEntity<List<OrderDTO>> searchOrders(@RequestBody(required = false) Map<String, String> body) {
+        String keyword = null;
+        if (body != null && body.containsKey("keyword")) {
+            keyword = body.get("keyword");
+        }
+        
+        List<OrderDTO> orders;
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            orders = orderService.searchOrders(keyword);
+        } else {
+            orders = orderService.findAll();
+        }
+        return ResponseEntity.ok(orders);
     }
 
     @GetMapping("/by-namecustomer")
