@@ -64,7 +64,7 @@ export const useOrders = (
     const params = new URLSearchParams();
     params.append('page', page.toString());
     params.append('size', size.toString());
-    params.append('sortByDateOrder', sortBy);
+    params.append('sortBy', sortBy);
     params.append('sortDir', sortDir);
     if (keyword) {
         params.append('keyword', keyword);
