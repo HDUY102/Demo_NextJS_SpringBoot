@@ -50,10 +50,13 @@ public class OrderController extends BaseController<OrderDTO, OrderDTO> {
     public ResponseEntity<Page<OrderDTO>> getOrders(
     		@RequestParam(defaultValue = "0") int page,
     		@RequestParam(defaultValue = "5") int size,
-    		@RequestParam(defaultValue = "dateOrder") String sortByDateOrder,
+    		@RequestParam(defaultValue = "dateOrder") String sortBy,
     		@RequestParam(defaultValue = "DESC") String sortDir,
     		@RequestParam(required = false) String keyword) {
-    	Sort sort = Sort.by(Sort.Direction.fromString(sortDir), sortByDateOrder);
+    	if ("customerName".equals(sortBy)) {
+            sortBy = "customer.nameCustomer";
+        }
+    	Sort sort = Sort.by(Sort.Direction.fromString(sortDir), sortBy);
     	Pageable pageable = PageRequest.of(page, size, sort);
     	
     	Page<OrderDTO> ordersPage;
