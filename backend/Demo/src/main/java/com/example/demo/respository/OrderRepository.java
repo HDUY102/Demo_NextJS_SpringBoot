@@ -7,7 +7,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import com.example.demo.entity.Orders;
 import com.example.demo.generics.BaseRepository;
-
+import org.springframework.data.domain.*;
 @Repository
 public interface OrderRepository extends BaseRepository<Orders>{
 	List<Orders> findByCustomer_NameCustomer(String customerName);
@@ -16,4 +16,11 @@ public interface OrderRepository extends BaseRepository<Orders>{
 		       "CAST(FUNCTION('DATE', o.dateOrder) AS string) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
 		       "CAST(o.totalAmount AS string) LIKE LOWER(CONCAT('%', :keyword, '%'))")
 		List<Orders> searchOrders(@Param("keyword") String keyword);
+	
+	// Pagination
+	@Query("SELECT o FROM Orders o WHERE " +
+	           "LOWER(o.customer.nameCustomer) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+	           "CAST(FUNCTION('DATE', o.dateOrder) AS string) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+	           "CAST(o.totalAmount AS string) LIKE LOWER(CONCAT('%', :keyword, '%'))")
+	    Page<Orders> searchOrdersPagination(@Param("keyword") String keyword, Pageable pageable);
 }

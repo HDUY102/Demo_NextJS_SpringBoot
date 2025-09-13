@@ -2,6 +2,7 @@ package com.example.demo.controller;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.data.domain.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.example.demo.entity.Orders;
@@ -43,6 +44,25 @@ public class OrderController extends BaseController<OrderDTO, OrderDTO> {
     public ResponseEntity<List<OrderDTO>> getOrdersByCustomerName(@RequestParam(name="customerName") String customerName) {
         List<OrderDTO> orders = orderService.findOrdersByCustomerName(customerName);
         return ResponseEntity.ok(orders);
+    }
+    
+    @GetMapping("/pagination")
+    public ResponseEntity<Page<OrderDTO>> getOrders(
+    		@RequestParam(defaultValue = "0") int page,
+    		@RequestParam(defaultValue = "5") int size,
+    		@RequestParam(defaultValue = "dateOrder") String sortByDateOrder,
+    		@RequestParam(defaultValue = "DESC") String sortDir,
+    		@RequestParam(required = false) String keyword) {
+    	Sort sort = Sort.by(Sort.Direction.fromString(sortDir), sortByDateOrder);
+    	Pageable pageable = PageRequest.of(page, size, sort);
+    	
+    	Page<OrderDTO> ordersPage;
+    	if (keyword != null && !keyword.trim().isEmpty()) {
+            ordersPage = orderService.searchOrdersPagination(keyword, pageable);
+        } else {
+            ordersPage = orderService.findAllPagination(pageable);
+        }
+    	return ResponseEntity.ok(ordersPage);
     }
     
     @PutMapping("/{orderId}/status")

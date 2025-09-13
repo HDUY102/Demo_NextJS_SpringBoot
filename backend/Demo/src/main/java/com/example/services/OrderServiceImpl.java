@@ -13,7 +13,7 @@ import com.fasterxml.jackson.databind.*;
 import org.springframework.data.domain.Sort;
 import jakarta.transaction.Transactional;
 import lombok.*;
-
+import org.springframework.data.domain.*;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -51,6 +51,20 @@ public class OrderServiceImpl extends BaseServiceImpl<Orders, OrderDTO, OrderDTO
         this.saleUnitsRepository = saleUnitsRepository;
         this.flowerTypesRepository = flowerTypesRepository;
         this.flowerPriceRepository = flowerPriceRepository;
+    }
+    
+    @Override
+    public Page<OrderDTO> findAllPagination(Pageable pageable) {
+        return orderRepository.findAll(pageable).map(orderMapper::toDTO);
+    }
+
+    // Cập nhật phương thức searchOrders để hỗ trợ phân trang
+    @Override
+    public Page<OrderDTO> searchOrdersPagination(String keyword, Pageable pageable) {
+    	if (keyword == null || keyword.trim().isEmpty()) {
+            return findAllPagination(pageable);
+        }
+        return orderRepository.searchOrdersPagination(keyword, pageable).map(orderMapper::toDTO);
     }
     
     // Search Order Table
