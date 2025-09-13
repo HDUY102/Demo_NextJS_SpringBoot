@@ -6,6 +6,7 @@ import { CategoryItem, Column, FilterOption, SortState} from '@/app/components/t
 import TableBody from '@/app/components/table/TableBody';
 import axiosInstance from '@/lib/axios';
 import TableCategory from '@/app/components/table/TableCategory';
+import TablePagination from '@/app/components/table/TablePagination';
 
 // Get Status Id
 function getLatestStatus(order: Orders): number | undefined {
@@ -29,8 +30,18 @@ function getLatestStatus(order: Orders): number | undefined {
 export default function OrderPage () {
   const [searchText, setSearchText] = useState('');
   const [debouncedSearchText, setDebouncedSearchText] = useState('');
-  const { orders, isLoading, isError,mutate } = useOrders(debouncedSearchText);
-  const [clientSearch, setClientSearch] = useState<Record<string, string>>({});
+
+  // Pagination
+  const [currentPage, setCurrentPage] = useState(0);
+  const [size, setSize] = useState(10);
+  const [sortStatePagi, setSortStatePagi] = useState<SortState<Orders>>({ key: 'dateOrder', direction: 'desc' });
+  const { orders, totalPages,isLoading, isError,mutate } = useOrders(debouncedSearchText,
+        currentPage,
+        size,
+        sortStatePagi.key || '',
+        sortStatePagi.direction === 'asc' ? 'ASC' : 'DESC');
+
+  const [clientSearch, setClientSearch] = useState<Record<string, string>>({});// Client Search
 
   // Search Change (Get Text for Server-side)
   const handleSearchChange = (value: string) => {
@@ -165,7 +176,7 @@ export default function OrderPage () {
         </div> : <div className='rounded-2xl bg-amber-500 p-0.5 text-center'>
           Chưa thanh toán
         </div>),
-      isSortable: true,
+      isSortable: true,  // sortOrder 'desc' 'asc'
     },
     {
       key: "actions",
@@ -200,8 +211,7 @@ export default function OrderPage () {
       if (key === "dateOrder") {
         const date = new Date(val);
         if (!isNaN(date.getTime())) {
-          const formatted = date.toISOString().split("T")[0]; // yyyy-mm-dd
-          unique.add(formatted);
+          unique.add(val.toString().split(" ")[0]); // yyyy-mm-dd
         }
       } else {
         unique.add(String(val));
@@ -229,7 +239,7 @@ export default function OrderPage () {
         if (value === null || value === undefined) return false;
 
         if (key === "dateOrder") {
-          const formatted = new Date(value as string).toISOString().split("T")[0];
+          const formatted = (value as string).split(" ")[0];
           return formatted === selectedValue;
         }
         return String(value).toLowerCase() === selectedValue.toLowerCase();
@@ -304,7 +314,10 @@ export default function OrderPage () {
         onSelectCategory={setSelectedCategory} searchText={searchText} onSearchChange={handleSearchChange} onKeyDown={handleSearchEnter}/>
       <div className="shadow-2xl border rounded">
         <table className="min-w-full divide-y divide-gray-200 text-sm">
-          <TableHeader columns={orderColumns} onSort={handleSort} onFilter={handleFilter} filterValues={{
+          <TableHeader columns={orderColumns} onSort={(key) => setSortStatePagi((prev) => ({
+                        key,
+                        direction: prev.key === key && prev.direction === 'asc' ? 'desc' : 'asc'
+                    }))} onFilter={handleFilter} filterValues={{
             customerName: getFilterValuesForColumn("customerName"),
             dateOrder: getFilterValuesForColumn("dateOrder"),
             isPaid: [
@@ -316,6 +329,9 @@ export default function OrderPage () {
           onSearchChange={handleSearchChangeClient}/>
           <TableBody data={sortedOrders} columns={orderColumns} expandedRows={expandedRows}/>
         </table>
+      </div>
+      <div className='flex flex-row-reverse mt-2'>
+        <TablePagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage}/>
       </div>
     </div>
   )
