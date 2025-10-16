@@ -1,8 +1,8 @@
 'use client'
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import TableHeader from '../../components/table/TableHeader'
 import { Orders, OrderStatusHistory, useOrders } from '@/hooks/useOrders';
-import { CategoryItem, Column, FilterOption, SortState} from '@/app/components/table/table.item';
+import { CategoryItem, TableColumn, FilterOption, SortState} from '@/app/components/table/table.item';
 import TableBody from '@/app/components/table/TableBody';
 import axiosInstance from '@/lib/axios';
 import TableCategory from '@/app/components/table/TableCategory';
@@ -34,7 +34,7 @@ export default function OrderPage () {
   // Pagination
   const [currentPage, setCurrentPage] = useState(0);
   const [size, setSize] = useState(10);
-  const [sortStatePagi, setSortStatePagi] = useState<SortState<Orders>>({ key: 'dateOrder', direction: 'desc' });
+  const [sortStatePagi, setSortStatePagi] = useState<SortState<Orders>>({ key: null, direction: 'desc' });
   const { orders, totalPages,isLoading, isError,mutate } = useOrders(debouncedSearchText,
         currentPage,
         size,
@@ -134,66 +134,46 @@ export default function OrderPage () {
   }};
 
   // Fill data Order to table
-  const orderColumns: Column<Orders>[] = [
+  // validate voi zod, co data type va constraints
+  const orderColumns: TableColumn<Orders, keyof Orders>[] = [
     {
       key: "number",
       label: "No",
-      render: (_, index:any) => `${index + 1}`,
+      type: "view"
     },
     {
       key: "customerName",
       label: "Customer Name",
       isSortable: true,
+      type: 'text'
     },
     {
       key: "dateOrder",
       label: "Order Date",
-      render: (order) =>
-        new Date(order.dateOrder).toLocaleDateString("vi-VN"),
       isSortable: true,
+      type: 'date'
     },
     {
       key: "details",
       label: "Details",
-      render: (order) => (
-        <button className="text-blue-700 underline hover:cursor-pointer" 
-          onClick={() => toggleRow(order.id)}>
-            {expandedRows[order.id] ? "Ẩn" : "Xem"}
-        </button>
-      ),
+      type: 'expand'
     },
     {
       key: "totalAmount",
       label: "Total Amount",
       isSortable: true,
+      type: 'text'
     },
     {
       key: "isPaid",
       label: "Paid?",
-      render: (order) => (order.isPaid ? 
-        <div className='rounded-2xl bg-green-800 p-0.5 text-center'>
-          Đã thanh toán
-        </div> : <div className='rounded-2xl bg-amber-500 p-0.5 text-center'>
-          Chưa thanh toán
-        </div>),
-      isSortable: true,  // sortOrder 'desc' 'asc'
+      isSortable: true,
+      type: 'bool'
     },
     {
       key: "actions",
       label: "Actions",
-      render: (order) => (
-        <div >
-          {<div className="flex gap-2">
-              <button className="px-2 py-1 bg-green-700 text-white text-xs rounded hover:bg-green-600 hover:cursor-pointer"
-                onClick={() => handleConfirm(order.id)}>
-                Xác nhận
-              </button>
-              <button className="px-2 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-500 hover:cursor-pointer"
-                onClick={() => handleCancel(order.id)} > Hủy
-              </button>
-            </div>}
-      </div>
-      ),
+      type: 'button'
     },
   ];
 
@@ -291,13 +271,13 @@ export default function OrderPage () {
       if (typeof aVal === 'string') {
         return sortState.direction === 'asc'
           ? aVal.localeCompare(bVal as string)
-          : (bVal as string).localeCompare(aVal);
+          : (bVal as string).localeCompare(aVal)
       }
 
       if (typeof aVal === 'number' || typeof aVal === 'boolean' || aVal instanceof Date) {
         return sortState.direction === 'asc'
           ? (aVal > bVal ? 1 : -1)
-          : (aVal < bVal ? 1 : -1);
+          : (aVal < bVal ? 1 : -1)
       }
 
       return 0;
@@ -314,7 +294,7 @@ export default function OrderPage () {
         onSelectCategory={setSelectedCategory} searchText={searchText} onSearchChange={handleSearchChange} onKeyDown={handleSearchEnter}/>
       <div className="shadow-2xl border rounded">
         <table className="min-w-full divide-y divide-gray-200 text-sm">
-          <TableHeader columns={orderColumns} onSort={(key) => setSortStatePagi((prev) => ({
+          <TableHeader<Orders> columns={orderColumns} onSort={(key) => setSortStatePagi((prev) => ({
                         key,
                         direction: prev.key === key && prev.direction === 'asc' ? 'desc' : 'asc'
                     }))} onFilter={handleFilter} filterValues={{
@@ -323,11 +303,12 @@ export default function OrderPage () {
             isPaid: [
               { value: "true", label: "Đã thanh toán" },
               { value: "false", label: "Chưa thanh toán" }
-            ],
+            ]
           }}
           searchText={clientSearch}
           onSearchChange={handleSearchChangeClient}/>
-          <TableBody data={sortedOrders} columns={orderColumns} expandedRows={expandedRows}/>
+          <TableBody<Orders> data={sortedOrders} records={orderColumns} expandedRows={expandedRows} onToggleRow={toggleRow}
+          onConfirm={handleConfirm} onCancel={handleCancel}/>
         </table>
       </div>
       <div className='flex flex-row-reverse mt-2'>
