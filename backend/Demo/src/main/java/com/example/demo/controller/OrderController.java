@@ -68,6 +68,16 @@ public class OrderController extends BaseController<OrderDTO, OrderDTO> {
     	return ResponseEntity.ok(ordersPage);
     }
     
+    @PostMapping("/change-status") // change status order
+    public ResponseEntity<OrderDTO> changeOrderStatus(@RequestBody Map<String, Object> body) {
+        Long orderId = ((Number) body.get("orderId")).longValue();
+        Long newStatusId = ((Number) body.get("newStatusId")).longValue();
+        String note = body.containsKey("note") ? (String) body.get("note") : null;
+
+        OrderDTO updatedOrder = orderService.updateOrderStatus(orderId, newStatusId, note);
+        return ResponseEntity.ok(updatedOrder);
+    }
+    
     @PutMapping("/{orderId}/status")
 //    public ResponseEntity<OrderDTO> updateOrderStatus( @PathVariable Long orderId, @RequestParam("newStatusId") Long newStatusId,
 //            @RequestParam(value = "note", required = false) String note) { // Truyền thông tin vào params URL
