@@ -1,3 +1,5 @@
+import { Orders } from "@/hooks/useOrders"
+
 // Define Type
 type ViewFieldType = "view" //custom view on table
 type ButtonFieldType = "button" //custom button on table
@@ -93,6 +95,7 @@ export interface ShowDetailProps{
 // Table Action
 export interface TableActionProps {
     orderId: string
+    order: Orders
     onConfirm: (id: string) => void
     onCancel: (id: string) => void
 }

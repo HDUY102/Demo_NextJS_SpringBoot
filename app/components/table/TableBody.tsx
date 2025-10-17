@@ -27,7 +27,7 @@ const TableBody = <T,>({records, data, expandedRows, onToggleRow, onConfirm, onC
                     cellContent = <PaymentStatus isPaid={Boolean(value)} />
                     break;
                   case 'button':
-                    cellContent = <TableAction orderId={String(col.key)} onConfirm={onConfirm} onCancel={onCancel}/>
+                    cellContent = <TableAction orderId={rowId} order={row as Orders} onConfirm={onConfirm} onCancel={onCancel}/>
                     break;
                   case 'expand':
                     cellContent = <ShowDetail orderId={rowId} isExpanded={isCurrentRowExpanded} onClick={onToggleRow} />
