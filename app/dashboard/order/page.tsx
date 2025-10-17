@@ -89,7 +89,7 @@ export default function OrderPage () {
       filterFn: (order:any) => getLatestStatus(order) === 2,
     },
     {
-      key: 6,
+      key: 7,
       label: 'Đã hủy',
       filterFn: (order:any) => getLatestStatus(order) === 7,
     },
@@ -102,7 +102,7 @@ export default function OrderPage () {
   // Actions change state of Order
   const handleConfirm = async (orderId: string | number) => {
     try {
-      const newStatusId = 2; // New -> Processing
+      const newStatusId = 2; // New -> Confirm
       await axiosInstance.put( `/orders/${orderId}/status`,
         {
             currentStatusId: newStatusId,
@@ -184,20 +184,20 @@ export default function OrderPage () {
   };
 
   const getFilterValuesForColumn = (key: keyof Orders): FilterOption[] => {
-  const unique = new Set<string>();
-  orders?.forEach((order) => {
-    const val:any = order[key];
-    if (val != null) {
-      if (key === "dateOrder") {
-        const date = new Date(val);
-        if (!isNaN(date.getTime())) {
-          unique.add(val.toString().split(" ")[0]); // yyyy-mm-dd
+    const unique = new Set<string>();
+    orders?.forEach((order) => {
+      const val:any = order[key];
+      if (val != null) {
+        if (key === "dateOrder") {
+          const date = new Date(val);
+          if (!isNaN(date.getTime())) {
+            unique.add(val.toString().split(" ")[0]); // yyyy-mm-dd
+          }
+        } else {
+          unique.add(String(val));
         }
-      } else {
-        unique.add(String(val));
       }
-    }
-  });
+    });
 
     if (key === "dateOrder") {
       return Array.from(unique).map((value) => ({
@@ -209,6 +209,15 @@ export default function OrderPage () {
     return Array.from(unique).map((v) => ({ value: v, label: v }));
   };
 
+  const orderFilterValues = useMemo(() => ({
+    customerName: getFilterValuesForColumn("customerName"),
+    dateOrder: getFilterValuesForColumn("dateOrder"),
+    isPaid: [
+      { value: "true", label: "Đã thanh toán" },
+      { value: "false", label: "Chưa thanh toán" }
+    ]
+  }), [orders]);
+  
   const filteredAndSearchedOrders = useMemo(() => {
     if (!filteredOrders) return [];
     
@@ -294,19 +303,11 @@ export default function OrderPage () {
         onSelectCategory={setSelectedCategory} searchText={searchText} onSearchChange={handleSearchChange} onKeyDown={handleSearchEnter}/>
       <div className="shadow-2xl border rounded">
         <table className="min-w-full divide-y divide-gray-200 text-sm">
-          <TableHeader<Orders> columns={orderColumns} onSort={(key) => setSortStatePagi((prev) => ({
-                        key,
-                        direction: prev.key === key && prev.direction === 'asc' ? 'desc' : 'asc'
-                    }))} onFilter={handleFilter} filterValues={{
-            customerName: getFilterValuesForColumn("customerName"),
-            dateOrder: getFilterValuesForColumn("dateOrder"),
-            isPaid: [
-              { value: "true", label: "Đã thanh toán" },
-              { value: "false", label: "Chưa thanh toán" }
-            ]
-          }}
-          searchText={clientSearch}
-          onSearchChange={handleSearchChangeClient}/>
+          <TableHeader<Orders> columns={orderColumns} filterValues={orderFilterValues} searchText={clientSearch} 
+          onSearchChange={handleSearchChangeClient} onSort={(key) => setSortStatePagi((prev) => ({
+            key,
+            direction: prev.key === key && prev.direction === 'asc' ? 'desc' : 'asc'
+          }))} onFilter={handleFilter} />
           <TableBody<Orders> data={sortedOrders} records={orderColumns} expandedRows={expandedRows} onToggleRow={toggleRow}
           onConfirm={handleConfirm} onCancel={handleCancel}/>
         </table>
