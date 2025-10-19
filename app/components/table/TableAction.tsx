@@ -1,6 +1,6 @@
 import React from 'react'
 import { TableActionProps } from './table.item'
-import { OrderStatusHistory } from '@/hooks/useOrders';
+import { OrderStatusHistory } from '@/hooks/Order/useOrders';
 
 export const TableAction: React.FC<TableActionProps> = ({orderId, order, onConfirm, onCancel}) => {
     let currentStatusId: number | undefined = undefined;

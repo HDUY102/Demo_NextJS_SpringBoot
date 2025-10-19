@@ -4,7 +4,7 @@ import TableDetail from '@/app/components/table/TableDetail';
 import { PaymentStatus } from './PaymentStatus';
 import { TableAction } from './TableAction';
 import { ShowDetail } from './ShowDetail';
-import { Orders } from '@/hooks/useOrders';
+import { Orders } from '@/hooks/Order/useOrders';
 
 const TableBody = <T,>({records, data, expandedRows, onToggleRow, onConfirm, onCancel} : TableBodyProps<T>) =>{
   return(

@@ -1,4 +1,4 @@
-import { DetailOrderDTO } from "@/hooks/useOrders";
+import { DetailOrderDTO } from "@/hooks/Order/useOrders";
 
 interface Props {
   details: DetailOrderDTO[];

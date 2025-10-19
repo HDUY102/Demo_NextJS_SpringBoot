@@ -1,4 +1,4 @@
-import { Orders } from "@/hooks/useOrders"
+import { Orders } from "@/hooks/Order/useOrders"
 
 // Define Type
 type ViewFieldType = "view" //custom view on table
